@@ -77,14 +77,14 @@ class Tile {
 
 // ----- 关卡配置 -----
 const LEVELS = [
-  { id: 1, name: '新手入门', tileCount: 27, layers: 2, timeLimit: 120, types: ['wan'] },
-  { id: 2, name: '初窥门径', tileCount: 36, layers: 2, timeLimit: 120, types: ['wan', 'tiao'] },
-  { id: 3, name: '小有所成', tileCount: 45, layers: 2, timeLimit: 150, types: ['wan', 'tiao', 'bing'] },
-  { id: 4, name: '渐入佳境', tileCount: 54, layers: 3, timeLimit: 150, types: ['wan', 'tiao', 'bing'] },
-  { id: 5, name: '融会贯通', tileCount: 63, layers: 3, timeLimit: 180, types: ['wan', 'tiao', 'bing', 'zi'] },
-  { id: 6, name: '炉火纯青', tileCount: 72, layers: 4, timeLimit: 180, types: ['wan', 'tiao', 'bing', 'zi'] },
-  { id: 7, name: '登峰造极', tileCount: 84, layers: 4, timeLimit: 200, types: ['wan', 'tiao', 'bing', 'zi'] },
-  { id: 8, name: '雀神附体', tileCount: 96, layers: 5, timeLimit: 240, types: ['wan', 'tiao', 'bing', 'zi'] }
+  { id: 1, name: '新手入门', tileCount: 36, layers: 2, timeLimit: 90, types: ['wan', 'tiao'], slots: 6 },
+  { id: 2, name: '初窥门径', tileCount: 48, layers: 3, timeLimit: 90, types: ['wan', 'tiao', 'bing'], slots: 6 },
+  { id: 3, name: '小有所成', tileCount: 60, layers: 3, timeLimit: 80, types: ['wan', 'tiao', 'bing'], slots: 6 },
+  { id: 4, name: '渐入佳境', tileCount: 72, layers: 4, timeLimit: 80, types: ['wan', 'tiao', 'bing'], slots: 6 },
+  { id: 5, name: '融会贯通', tileCount: 84, layers: 4, timeLimit: 75, types: ['wan', 'tiao', 'bing', 'zi'], slots: 6 },
+  { id: 6, name: '炉火纯青', tileCount: 96, layers: 5, timeLimit: 70, types: ['wan', 'tiao', 'bing', 'zi'], slots: 5 },
+  { id: 7, name: '登峰造极', tileCount: 108, layers: 5, timeLimit: 65, types: ['wan', 'tiao', 'bing', 'zi'], slots: 5 },
+  { id: 8, name: '雀神附体', tileCount: 120, layers: 6, timeLimit: 60, types: ['wan', 'tiao', 'bing', 'zi'], slots: 5 }
 ]
 function getLevel(id) { return LEVELS.find(l => l.id === id) || LEVELS[0] }
 
@@ -894,20 +894,20 @@ class Game {
   render() {
     this.renderer.clear()
     if (this.state === STATE.MENU) {
-      this.btnRect = this.renderer.drawOverlay('红中麻将消消乐', '吃碰杠消除 | 7格卡槽', '开始游戏')
+      this.btnRect = this.renderer.drawOverlay('红中麻将消消乐', '吃碰杠消除 | 挑战极限', '开始游戏')
     } else if (this.state === STATE.PLAY) {
       this.renderer.drawTiles(this.tiles)
-      this.renderer.drawSlot(this.slot.slots, 7)
+      this.renderer.drawSlot(this.slot.slots, this.slot.max)
       this.renderer.drawUI(this.level, this.score, Math.ceil(this.timeLeft), LEVELS.length)
       if (this.hintText) this.renderer.drawHint(this.hintText)
     } else if (this.state === STATE.WIN) {
       this.renderer.drawTiles(this.tiles)
-      this.renderer.drawSlot(this.slot.slots, 7)
+      this.renderer.drawSlot(this.slot.slots, this.slot.max)
       const next = this.level < LEVELS.length ? '下一关' : '重新开始'
       this.btnRect = this.renderer.drawOverlay('恭喜过关！', '得分: ' + this.score, next)
     } else {
       this.renderer.drawTiles(this.tiles)
-      this.renderer.drawSlot(this.slot.slots, 7)
+      this.renderer.drawSlot(this.slot.slots, this.slot.max)
       this.btnRect = this.renderer.drawOverlay('游戏结束', '得分: ' + this.score, '重新开始')
     }
   }
@@ -973,7 +973,7 @@ class Game {
     this.level = id
     this.score = 0
     this.timeLeft = lv.timeLimit
-    this.slot.clear()
+    this.slot = new Slot(lv.slots || 7) // 根据关卡配置卡槽数
     this.state = STATE.PLAY
     this.tiles = []
     this.checkTimer = 2
